@@ -682,10 +682,13 @@ function toggleKeyVisibility() {
 
 function startChat() {
   const key = document.getElementById('apiKeyInput').value.trim();
-  if (!key.startsWith('sk-ant-')) {
-    document.getElementById('gateError').style.display = 'block';
+  const errEl = document.getElementById('gateError');
+  if (!key || key.length < 20) {
+    errEl.textContent = 'Please paste your full API key from console.anthropic.com';
+    errEl.style.display = 'block';
     return;
   }
+  errEl.style.display = 'none';
   userApiKey = key;
   document.getElementById('apiGate').style.display = 'none';
   document.getElementById('userInput').focus();
@@ -937,7 +940,7 @@ async function sendMessage() {
         'anthropic-dangerous-direct-browser-iab': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-5',
         max_tokens: 1000,
         system: SYSTEM_PROMPT,
         messages: conversationHistory
@@ -949,8 +952,9 @@ async function sendMessage() {
     // Remove thinking bubble
     thinkingEl.remove();
 
-    if (data.error) {
-      addError('Something went wrong: ' + data.error.message);
+    if (!response.ok || data.error) {
+      const errMsg = data.error?.message || `Error ${response.status}: ${response.statusText}`;
+      addError('Error: ' + errMsg);
     } else {
       const replyText = data.content?.[0]?.text || 'I\'m afraid I couldn\'t quite get that. Do try again.';
       addMessage('lucinda', replyText);
@@ -959,7 +963,7 @@ async function sendMessage() {
 
   } catch (err) {
     thinkingEl.remove();
-    addError('Connection issue. Please try again in a moment.');
+    addError('Connection issue: ' + err.message + '. Check your API key is correct and try again.');
     console.error(err);
   } finally {
     isLoading = false;
