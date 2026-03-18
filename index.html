@@ -176,19 +176,29 @@ function toggleEye() {
 function startChat() {
   var k = document.getElementById('keyInput').value.trim();
   var err = document.getElementById('gateErr');
-  if (!k || k.length < 10) {
+  if (!k) {
+    err.textContent = 'Please paste your API key from console.anthropic.com';
     err.style.display = 'block';
     return;
   }
   err.style.display = 'none';
   apiKey = k;
   document.getElementById('gate').style.display = 'none';
+  console.log('API key saved, length:', apiKey.length);
+  // Show brief confirmation banner
+  var banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#09443d;color:#8bdd5d;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+  banner.textContent = 'API key accepted. Ask Lucinda anything.';
+  document.body.appendChild(banner);
+  setTimeout(function(){ banner.remove(); }, 3000);
   document.getElementById('msgInput').focus();
 }
 
 function useSuggestion(btn) {
-  document.getElementById('msgInput').value = btn.textContent;
-  send();
+  var input = document.getElementById('msgInput');
+  input.value = btn.textContent;
+  grow(input);
+  setTimeout(function(){ send(); }, 50);
 }
 
 function grow(el) {
@@ -256,10 +266,19 @@ function addErr(msg) {
 }
 
 async function send() {
-  if (busy) return;
+  console.log('send() called, busy:', busy, 'apiKey length:', apiKey.length, 'apiKey set:', !!apiKey);
+  if (busy) { console.log('blocked: busy'); return; }
+
+  if (!apiKey) {
+    console.log('blocked: no apiKey');
+    document.getElementById('gate').style.display = 'flex';
+    return;
+  }
+
   var input = document.getElementById('msgInput');
   var text = input.value.trim();
-  if (!text) return;
+  console.log('text:', text);
+  if (!text) { console.log('blocked: no text'); return; }
 
   input.value = '';
   input.style.height = 'auto';
@@ -272,6 +291,7 @@ async function send() {
   var thinkEl = addMsg('lucinda', '', true);
 
   try {
+    console.log('Sending to API, model: claude-haiku-4-5, key starts with:', apiKey.substring(0,10));
     var resp = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
