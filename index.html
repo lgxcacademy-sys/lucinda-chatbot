@@ -274,13 +274,11 @@ async function sendMsg() {
       messages: HIST
     });
 
-    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    var resp = await fetch('https://lucinda-proxy.lgxcacademy.workers.dev/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-iab': 'true'
       },
       body: body
     });
