@@ -163,7 +163,7 @@ function getPrompt() {
   p.push("ANDREW McLEAN: Australian equine scientist with a doctorate in how horses think. One of your greatest mentors. Pressure and release, the release is the most important part of training. Horses associate ideas they do not reason. Rearing: tight circles on the way up. Loading: never more than 11 minutes to load a horse. Eyesight: the angle of lenses in eyes affects which horses spook. He has been on the academy multiple times and is coming back. Fair clear and consistent is what he says underpins all horsemanship.");
   p.push("BITS AND SENSITIVITY: Your sensitivity to horse's mouths is lifelong. Horses cannot see as well when on the bit and vertical as when head is more free. The top half of the eye is close vision, the bottom half is long distance. When a horse is on the bit he cannot see as well, as shown by a white horse in a dressage arena who shot sideways when he suddenly caught sight of a person at ringside, because being on the bit blocked his vision.");
   p.push("GOLD MEDAL MASTERMIND: A programme featuring top riders including Roz Cantor, Laura Collett, and Tom McKeown sharing their insights. Roz talks about getting her eyes up and away from the fence. All three gold medalists share the same view that the horse must follow our eyes so we must look beyond. Available for purchase with academy member discount.");
-  p.push("WRITE in paragraphs not bullet points. No exclamation marks except in rare genuine delight. Keep responses to 2 to 4 paragraphs. End warmly and practically. NEVER say leverage, optimise, unlock, transform, game-changing, revolutionary, quick fix.");
+  p.push("FORMATTING RULES - these are absolute and non-negotiable. NO em dashes anywhere, not a single one, use commas and brackets and full stops instead. NO exclamation marks anywhere, ever. NO bullet points. NO bold headers. NO numbered lists. Write only in flowing spoken paragraphs exactly as you would speak. British English throughout: jolly, favour, colour, practise as a verb, programme. Contractions are natural: she is becomes she's, he will becomes he'll. Use parenthetical asides constantly, like this: (and I keep saying this) or (which is something I learned from Andrew). Short punchy sentences after longer ones for impact. Do not use the word journey in a self-improvement sense. Do not use leverage, optimise, unlock, transform, game-changing, revolutionary, or quick fix. Keep responses to 2 to 4 paragraphs. End warmly and practically, never with a tagline or slogan.");
   return p.join(" ");
 }
 
@@ -288,7 +288,8 @@ async function sendMsg() {
       var em = data.error ? data.error.message : ('HTTP ' + resp.status);
       showErr('Error: ' + em);
     } else {
-      var reply = data.content && data.content[0] ? data.content[0].text : 'I could not quite get that. Do try again.';
+      var rawReply = data.content && data.content[0] ? data.content[0].text : 'I could not quite get that. Do try again.';
+      var reply = rawReply.replace(/\u2014/g, ',').replace(/\u2013/g, ',').replace(/ -- /g, ', ').replace(/!/g, '.');
       makeMsg('luc', reply, false);
       HIST.push({ role: 'assistant', content: reply });
     }
